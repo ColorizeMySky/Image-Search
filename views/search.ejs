@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>In Google-search we trust!</title>
+    <meta name="description" content="Find me, if you can">
+    <link id="favicon" rel="icon" href="https://res.cloudinary.com/colmsk/image/upload/v1551441957/hacker_logo.ico" type="image/x-icon">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+  </head>
+  
+  <body>
+    <header class="jumbotron text-center">
+      <h1 class="display-1">Search here whatever you want</h1>
+    </header>
+
+    <main class="container">      
+      <form class="mx-auto d-flex justify-content-center" action="/api/imagesearch/" method="GET">
+        <input name="query" type="text" maxlength="100" placeholder="--> Type here <--" class="text-center">
+        <button type="submit" id="submit" class="ml-3">Click for searching</button>
+      </form>
+      
+      <% if (data) { %>
+        <h2 class="display-4 mb-5">We manage to find for <%= data.queries.request[0].searchTerms %>: </h2>
+      
+        <div>
+          <% data.items.forEach(function(img){ %>
+            <div class='result d-flex mb-3 border rounded shadow'>
+              <img src="<%=img.image.thumbnailLink %>" alt="<%= data.queries.request[0].searchTerms %>">
+              <div class="ml-3 d-flex flex-column">
+                <p>
+                  <%- img.htmlTitle %>
+                </p>                
+                <a href="<% img.link %>" target="_blank">
+                  see original
+                </a>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      <% } %>
+
+    </main>
+
+    <footer class="container-fluid">
+      <div class="text-center mt-5"><em>During creating this page, no programmer was hurt!</em></div>
+    </footer>
+
+    <!-- <script src="/search.js"></script> -->
+  </body>
+</html>
