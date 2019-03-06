@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const apiRouter = require('./routing/api.js');
+const mongoose = require('mongoose');
 
 
 app.set('view engine', 'ejs');

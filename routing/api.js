@@ -12,11 +12,12 @@ const ejs = require('ejs');
 
 const MongoClient = require('mongodb');
 const mongoose = require('mongoose');
+const Queries = require('../models/query.js');
 const CONNECTION_STRING = process.env.DB;
 const connect = mongoose.connect(CONNECTION_STRING);
 
 connect.then((db) => {
-  console.log("We managed to connect with database, wow!");
+  console.log("We and our database are together now");
 }, (err) => { console.log(err); });
 
 
@@ -31,13 +32,19 @@ apiRouter.route('/imagesearch')
     let urlParsed = url.parse(req.url, true);  
   
     if(urlParsed.query.query){
+      
+      Queries.create({name: urlParsed.query.query})
+      .then( (data) => {
+        console.log("Now we know, that you are searching for " + data.name);
+      })
+      
       let start = 1;
       if(urlParsed.query.offset && Number.isInteger(+urlParsed.query.offset) && +urlParsed.query.offset > 1) {
         start = urlParsed.query.offset * 10 - 10 + 1;
         console.log(start);
       }
-      let search = 'https://www.googleapis.com/customsearch/v1?key=' + KEY + '&cx=' + ID +'&searchType=image&alt=json&start=' + start + '&q=' + urlParsed.query.query;
-      console.log(search);
+      let search = 'https://www.googleapis.com/customsearch/v1?key=' + KEY + '&cx=' + ID +'&searchType=image&alt=json&start=' + start + '&q=' + urlParsed.query.query;      
+      
       fetch(search)
       .then( (response) => {
         if (response.status !== 200) {
@@ -63,5 +70,21 @@ apiRouter.route('/imagesearch')
   
 })
 
+
+apiRouter.route('/latest/imagesearch/')
+  .get( (req, res, next) => {
+    //res.end('Hello, mortals!');
+    Queries.find({}).sort({createdAt: 'desc'}).limit(10)
+      .then( (data) => {
+        let result = [];      
+        for (let item of data) {
+          result.push({term: item.name, when: item.createdAt})
+        }
+      
+        res.statusCode = 200;
+        res.json(result);
+      }, (err) => next(err))
+      .catch((err) => next(err))
+  })
 
 module.exports = apiRouter;
